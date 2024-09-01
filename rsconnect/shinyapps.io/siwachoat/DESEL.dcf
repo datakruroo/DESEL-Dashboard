@@ -1,0 +1,12 @@
+name: DESEL
+title: DESEL
+username: siwachoat
+account: siwachoat
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10495298
+bundleId: 9049541
+url: https://siwachoat.shinyapps.io/DESEL/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

@@ -149,11 +149,12 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+    library(stringr)
     data <- reactive({
         inFile <- input$file1
         if (is.null(inFile))
             return()
-        read_excel(inFile$datapath)
+        read_excel(inFile$datapath) 
     })
     
     url<-a("ดาวน์โหลด template สำหรับกรอกข้อมูล", href = "data_template.xlsx")
@@ -175,6 +176,7 @@ server <- function(input, output, session) {
         dat <- data()
         names(dat)[1]<-"name"
         dat <- dat%>%
+            mutate(name = str_trim(name)) %>% 
             separate(col = "name", into = c("name","surname"), sep =" ") %>%
             select(-surname)
         names(dat)[1:7]<-c("name","gender","econ","health","gpax","attend","homework")
@@ -230,7 +232,8 @@ server <- function(input, output, session) {
             count() %>% 
             ungroup() %>%
             arrange(-n) %>%
-            mutate(group = LETTERS[1:nrow(.)])
+            mutate(group = LETTERS[1:nrow(.)]) %>% 
+            mutate(group = paste0("กลุ่ม ",group,"\n",n," คน"))
        
  
        
@@ -372,15 +375,21 @@ server <- function(input, output, session) {
                                      levels=c("econ_risk","study_risk","health_risk","sdq_risk"),
                                      labels=c("มีฐานะยากจน","การเรียน","สุขภาพทางกาย","อารมณ์/สังคม"))) %>%
                 filter(risk >0) %>%
-                ggplot(aes(area = n, fill = type, subgroup = group, label = type))+
+                ggplot(aes(area = n, fill = type, subgroup = group))+
                 geom_treemap(alpha = 0.9)+
                 geom_treemap_subgroup_border(col = "white")+
-                geom_treemap_text(family = "ChulaCharasNew", padding.y = grid::unit(4, "mm"))+
-                geom_treemap_subgroup_text(place = "centre", grow = T,
-                                           alpha = 0.4, colour ="white", min.size = 0)+
+                geom_treemap_text(aes(label = type),family = "ChulaCharasNew", padding.y = grid::unit(4, "mm"),
+                                  alpha = 0.3, col = "black")+
+                geom_treemap_subgroup_text(place = "centre", reflow	=T,grow = F,
+                                           alpha = 0.8, colour ="white", min.size = 0)+
+               #geom_treemap_subgroup2_text(aes(label = paste0(n," คน")),place = "centre", colour = "black")+
                 scale_fill_carto_d(palette = 4)+
                 theme(legend.position = "none")
-            p
+    
+           p
+            
+            
+
         })
         
         #### visualize ความเสี่ยงแบบละเอียด
